@@ -16,7 +16,9 @@
   "author": "Yagnesh Modh <yagnesh.modh@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "react": "^18.2.0"
+    "@babel/preset-react": "^7.23.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
