@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Child1 from './child1';
+import Child2 from './child2';
 
 function App({ title, desc, age, gender }) {
   const bgcolor = 'red';
@@ -21,6 +23,8 @@ function App({ title, desc, age, gender }) {
       </h1>
       {age > 0 && <h3>{age}</h3>}
       <button type="button">Submit</button>
+      <Child1 name="Poojan" />
+      <Child2 />
     </>
   );
 }
