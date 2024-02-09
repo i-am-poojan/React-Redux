@@ -11,6 +11,6 @@ const root = createRoot(document.getElementById('root'));
 root.render(
   <>
     <App title="First App" desc="dfdklfdfd" />
-    <App title="Second App" />
+    <App title="Second App" age={45} gender="other" />
   </>,
 );
