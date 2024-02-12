@@ -6,11 +6,14 @@ class Child2 extends Component {
     console.log(props);
     this.state = {
       count: 0,
-      greet: `Hello ${props.name}`,
+      // greet: `Hello ${props.name}`,
       data: null,
     };
   }
-  // static getDerivedStateFromProps(props, state) {first}
+  static getDerivedStateFromProps(props, state){
+    return{
+    greet:`hello ${props.name}`
+  }}
   async componentDidMount() {
     try {
       const res = await fetch('https://fakestoreapi.com/carts/1');
