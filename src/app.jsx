@@ -24,7 +24,7 @@ function App({ title, desc, age, gender }) {
       {age > 0 && <h3>{age}</h3>}
       <button type="button">Submit</button>
       <Child1 name="Poojan" />
-      <Child2 />
+      <Child2 name="Patel" />
     </>
   );
 }
