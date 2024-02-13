@@ -13,6 +13,12 @@ class Child2 extends Component {
       data: null,
     };
   }
+  getSnapshotBeforeUpdate(prevProps,prevState){
+    return 10;
+  }
+  componentDidUpdate(prevProps, prevState,snapshot) {
+    console.log('snapshot',snapshot);
+  }
   static getDerivedStateFromProps(props, state) {
     return {
       greet: `hello ${props.name}`,
