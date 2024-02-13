@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component,createRef } from 'react';
 import Child3 from './child3';
 import Child4 from './child4';
 
 class Child2 extends Component {
+  h1Ref=createRef();
   constructor(props) {
     super(props);
     console.log(props);
@@ -18,6 +19,7 @@ class Child2 extends Component {
     };
   }
   async componentDidMount() {
+    console.log(this.h1Ref.current);
     try {
       const res = await fetch('https://fakestoreapi.com/carts/1');
       const json = await res.json();
@@ -27,6 +29,7 @@ class Child2 extends Component {
     }
   }
 
+
   render() {
     if (this.state.count > 3) {
       throw new Error('Hello');
@@ -34,7 +37,11 @@ class Child2 extends Component {
     return (
       <div>
         {this.state.data && <h1>{JSON.stringify(this.state.data.date)}</h1>}
-        <h1 id="cdm">{this.state.greet}</h1>
+        <h1
+          ref={this.h1Ref}
+        >
+          {this.state.greet}
+        </h1>
         <button
           type="button"
           onClick={() => {
@@ -63,8 +70,8 @@ class Child2 extends Component {
         >
           -
         </button>
-          <Child4 count={this.state.count} />
-        <Child3 count={this.state.count}  />
+        <Child4 count={this.state.count} />
+        <Child3 count={this.state.count} />
       </div>
     );
   }
