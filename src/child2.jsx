@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import Child3 from './child3';
+import Child4 from './child4';
 
 class Child2 extends Component {
   constructor(props) {
@@ -10,10 +12,11 @@ class Child2 extends Component {
       data: null,
     };
   }
-  static getDerivedStateFromProps(props, state){
-    return{
-    greet:`hello ${props.name}`
-  }}
+  static getDerivedStateFromProps(props, state) {
+    return {
+      greet: `hello ${props.name}`,
+    };
+  }
   async componentDidMount() {
     try {
       const res = await fetch('https://fakestoreapi.com/carts/1');
@@ -60,6 +63,8 @@ class Child2 extends Component {
         >
           -
         </button>
+          <Child4 count={this.state.count} />
+        <Child3 count={this.state.count}  />
       </div>
     );
   }

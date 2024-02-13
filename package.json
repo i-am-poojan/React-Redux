@@ -19,6 +19,7 @@
     "@babel/preset-react": "^7.23.3",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
+    "react-addons-shallow-compare": "^15.6.3",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {

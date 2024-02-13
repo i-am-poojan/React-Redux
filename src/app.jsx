@@ -12,7 +12,7 @@ export default class App extends Component {
     const{name}=this.state
     return (
       <div>
-        {/* <Child1/> */}
+        <Child1/>
         <Child2 name={name}/>
         <button type="button" onClick={()=>this.setState({name:"Dev Patel"})}>
           change name pls click me
