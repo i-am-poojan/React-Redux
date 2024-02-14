@@ -25,6 +25,7 @@ class Child2 extends Component {
     };
   }
   async componentDidMount() {
+    
     console.log(this.h1Ref.current);
     try {
       const res = await fetch('https://fakestoreapi.com/carts/1');
@@ -37,7 +38,7 @@ class Child2 extends Component {
 
 
   render() {
-    if (this.state.count > 3) {
+    if (this.state.count > 10) {
       throw new Error('Hello');
     }
     return (
@@ -76,7 +77,7 @@ class Child2 extends Component {
         >
           -
         </button>
-        <Child4 count={this.state.count} />
+        {this.state.count<5 && <Child4 count={this.state.count} />}
         <Child3 count={this.state.count} />
       </div>
     );
