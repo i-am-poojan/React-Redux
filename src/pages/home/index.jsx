@@ -17,24 +17,29 @@ import {
 export default class Home extends Component {
   state = {
     todoList: [],
-    todoText: '',
+    filterType: 'all',
   };
 
-  changeText = event => {
-    this.setState({ todoText: event.target.value });
-  };
+  inputRef = createRef();
 
   addTodo = event => {
+    const inputText = this.inputRef.current;
     event.preventDefault();
-    this.setState(({ todoText, todoList }) => {
-      return {
-        todoList: [
-          ...todoList,
-          { id: new Date().valueOf(), text: todoText, isDone: false },
-        ],
-        todoText: '',
-      };
-    });
+    this.setState(
+      ({ todoList }) => {
+        return {
+          todoList: [
+            ...todoList,
+            {
+              id: new Date().valueOf(),
+              text: inputText.value,
+              isDone: false,
+            },
+          ],
+        };
+      },
+      () => (inputText.value = ''),
+    );
   };
 
   toggleComplate = item => {
@@ -58,8 +63,13 @@ export default class Home extends Component {
       };
     });
   };
+
+  changeFilterType = filterType => {
+    this.setState({ filterType });
+  };
+
   render() {
-    const { todoText, todoList } = this.state;
+    const { todoList, filterType } = this.state;
     return (
       <div className="flex flex-col items-center gap-4 m-4 min-h-[95vh]">
         <h1>Todo App </h1>
@@ -67,58 +77,85 @@ export default class Home extends Component {
           onSubmit={this.addTodo}
           className="flex max-w-sm w-full items-center"
         >
-          <Input
-            className="rounded-r-none"
-            value={todoText}
-            onChange={this.changeText}
-          />
+          <Input className="rounded-r-none" ref={this.inputRef} />
           <Button type="sumbit" className="rounded-l-none">
             Button
           </Button>
         </form>
         <div className=" gap-4 flex flex-col w-full flex-1">
-          {todoList.map(item => {
-            return (
-              <div key={item.id} className="flex items-center">
-                <Checkbox
-                  type="checkbox"
-                  checked={item.isDone}
-                  onCheckedChange={() => this.toggleComplate(item)}
-                />
-                <p className="flex-1 px-4">{item.text}</p>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline">Delete</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your account and remove your data from our
-                        servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => this.deleteTodo(item)}>
-                        Confirm
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            );
-          })}
+          {todoList
+            .filter(x => {
+              switch (filterType) {
+                case 'pending':
+                  return x.isDone === false;
+
+                case 'complated':
+                  return x.isDone === true;
+
+                default:
+                  return true;
+              }
+            })
+            .map(item => {
+              return (
+                <div key={item.id} className="flex items-center">
+                  <Checkbox
+                    type="checkbox"
+                    checked={item.isDone}
+                    onCheckedChange={() => this.toggleComplate(item)}
+                  />
+                  <p className="flex-1 px-4">{item.text}</p>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline">Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your account and remove your data from our
+                          servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => this.deleteTodo(item)}
+                        >
+                          Confirm
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              );
+            })}
         </div>
         <div className="flex w-full ">
-          <Button className="flex-1 rounded-none " variant="destructive">
+          <Button
+            className="flex-1 rounded-none "
+            variant={filterType === 'all' ? 'destructive' : 'default'}
+            onClick={() => this.changeFilterType('all')}
+          >
             All
           </Button>
-          <Button className="flex-1 rounded-none">Pending</Button>
-          <Button className="flex-1 rounded-none">Complated</Button>
+          <Button
+            variant={filterType === 'pending' ? 'destructive' : 'default'}
+            onClick={() => this.changeFilterType('pending')}
+            className="flex-1 rounded-none"
+          >
+            Pending
+          </Button>
+          <Button
+            variant={filterType === 'complated' ? 'destructive' : 'default'}
+            onClick={() => this.changeFilterType('complated')}
+            className="flex-1 rounded-none"
+          >
+            Complated
+          </Button>
         </div>
       </div>
     );
