@@ -8,9 +8,6 @@ module.exports = {
     filename: 'bundle.js',
   },
   mode: 'development',
-  resolve: {
-    extensions: ['.js', '.json', '.jsx'],
-  },
   module: {
     rules: [
       {
@@ -31,8 +28,12 @@ module.exports = {
       filename: 'index.html',
     }),
   ],
+  resolve: {
+    extensions: ['.js', '.jsx', '.json'],
+  },
   devServer: {
     open: true,
     port: 3000,
+    historyApiFallback: true,
   },
 };
