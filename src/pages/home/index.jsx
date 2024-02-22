@@ -22,46 +22,86 @@ export default class Home extends Component {
 
   inputRef = createRef();
 
-  addTodo = event => {
-    const inputText = this.inputRef.current;
-    event.preventDefault();
-    this.setState(
-      ({ todoList }) => {
+  async componentDidMount() {
+    try {
+      const res = await fetch('http://localhost:3000/todoList');
+      const json = await res.json();
+      this.setState({ todoList: json });
+    } catch (error) {}
+  }
+
+  addTodo = async event => {
+    try {
+      const inputText = this.inputRef.current;
+      event.preventDefault();
+
+      const res = await fetch('http://localhost:3000/todoList', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: inputText.value,
+          isDone: false,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+      const json = await res.json();
+
+      this.setState(
+        ({ todoList }) => {
+          return {
+            todoList: [...todoList, json],
+          };
+        },
+        () => (inputText.value = ''),
+      );
+    } catch (error) {}
+  };
+
+  toggleComplate = async item => {
+    try {
+      const inputText = this.inputRef.current;
+      event.preventDefault();
+
+      const res = await fetch(`http://localhost:3000/todoList/${item.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          ...item,
+          isDone: !item.isDone,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+      const json = await res.json();
+
+      this.setState(({ todoList }, props) => {
+        const index = todoList.findIndex(x => x.id === item.id);
         return {
           todoList: [
-            ...todoList,
-            {
-              id: new Date().valueOf(),
-              text: inputText.value,
-              isDone: false,
-            },
+            ...todoList.slice(0, index),
+            json,
+            ...todoList.slice(index + 1),
           ],
         };
-      },
-      () => (inputText.value = ''),
-    );
+      });
+    } catch (error) {}
   };
 
-  toggleComplate = item => {
-    this.setState(({ todoList }, props) => {
-      const index = todoList.findIndex(x => x.id === item.id);
-      return {
-        todoList: [
-          ...todoList.slice(0, index),
-          { ...item, isDone: !item.isDone },
-          ...todoList.slice(index + 1),
-        ],
-      };
-    });
-  };
-
-  deleteTodo = item => {
-    this.setState(({ todoList }, props) => {
-      const index = todoList.findIndex(x => x.id === item.id);
-      return {
-        todoList: [...todoList.slice(0, index), ...todoList.slice(index + 1)],
-      };
-    });
+  deleteTodo = async item => {
+    try {
+      await fetch(`http://localhost:3000/todoList/${item.id}`, {
+        method: 'DELETE',
+      });
+      this.setState(({ todoList }, props) => {
+        const index = todoList.findIndex(x => x.id === item.id);
+        return {
+          todoList: [...todoList.slice(0, index), ...todoList.slice(index + 1)],
+        };
+      });
+    } catch (error) {}
   };
 
   changeFilterType = filterType => {
