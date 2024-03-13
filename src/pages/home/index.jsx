@@ -1,36 +1,42 @@
 import React, { Component, createRef } from 'react';
-import TodoFilter from '@/components/todoFilter';
-import TodoForm from '@/components/todoForm';
-import TodoList from '@/components/todoList';
+import { v4 as uuidv4 } from 'uuid';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import ConfirmDelete from '@/components/confirmDelete';
 
 export default class Home extends Component {
   state = {
     todoList: [],
-    // todoText: '',
     filterType: 'all',
+    editMode: 0,
+    page: 1,
   };
 
-  // changeText = event => {
-  //   this.setState({ todoText: event.target.value });
-  // };
   inputRef = createRef();
+  editRef = createRef();
 
   async componentDidMount() {
+    this.loadTodo();
+  }
+
+  loadTodo = async () => {
     try {
       const res = await fetch('http://localhost:3000/todoList');
       const json = await res.json();
       this.setState({ todoList: json });
     } catch (error) {}
-  }
+  };
 
-  addTodo = async event => {
-    event.preventDefault();
-    const afterRef = this.inputRef.current;
+  addTodo = async e => {
     try {
+      e.preventDefault();
+      const input = this.inputRef.current;
+
       const res = await fetch('http://localhost:3000/todoList', {
         method: 'POST',
         body: JSON.stringify({
-          text: afterRef.value,
+          text: input.value,
           isDone: false,
         }),
         headers: {
@@ -38,38 +44,38 @@ export default class Home extends Component {
           Accept: 'application/json',
         },
       });
+
       const json = await res.json();
 
       this.setState(
-        ({ todoList }) => {
-          return {
-            todoList: [...todoList, json],
-          };
-        },
+        ({ todoList }) => ({
+          todoList: [...todoList, json],
+        }),
         () => {
-          afterRef.value = '';
+          input.value = '';
         },
       );
     } catch (error) {}
   };
 
-  toggleTodo = async x => {
+  toggleComplete = async item => {
     try {
-      const res = await fetch(`http://localhost:3000/todoList/${x.id}`, {
+      const res = await fetch(`http://localhost:3000/todoList/${item.id}`, {
         method: 'PUT',
         body: JSON.stringify({
-          ...x,
-          isDone: !x.isDone,
+          ...item,
+          isDone: !item.isDone,
         }),
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       });
+
       const json = await res.json();
 
       this.setState(({ todoList }) => {
-        const index = todoList.findIndex(item => item.id === x.id);
+        const index = todoList.findIndex(x => x.id === item.id);
         return {
           todoList: [
             ...todoList.slice(0, index),
@@ -81,14 +87,44 @@ export default class Home extends Component {
     } catch (error) {}
   };
 
-  deleteTodo = async x => {
+  editTodo = async item => {
     try {
-      await fetch(`http://localhost:3000/todoList/${x.id}`, {
+      const res = await fetch(`http://localhost:3000/todoList/${item.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          ...item,
+          text: this.editRef.current.value,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      });
+
+      const json = await res.json();
+
+      this.setState(({ todoList }) => {
+        const index = todoList.findIndex(x => x.id === item.id);
+        return {
+          todoList: [
+            ...todoList.slice(0, index),
+            json,
+            ...todoList.slice(index + 1),
+          ],
+          editMode: 0,
+        };
+      });
+    } catch (error) {}
+  };
+
+  deleteTodo = async item => {
+    try {
+      await fetch(`http://localhost:3000/todoList/${item.id}`, {
         method: 'DELETE',
       });
 
       this.setState(({ todoList }) => {
-        const index = todoList.findIndex(item => item.id === x.id);
+        const index = todoList.findIndex(x => x.id === item.id);
         return {
           todoList: [...todoList.slice(0, index), ...todoList.slice(index + 1)],
         };
@@ -96,31 +132,120 @@ export default class Home extends Component {
     } catch (error) {}
   };
 
-  changeFilter = filterType => {
-    this.setState({ filterType: filterType });
+  changeFilterType = filterType => {
+    this.setState({ filterType });
   };
 
   render() {
-    console.log('Render');
-    const { todoList, filterType } = this.state;
+    const { todoList, filterType, editMode, page } = this.state;
 
     return (
-      <>
-        <div className="flex flex-col items-center gap-4 h-screen">
-          <h1>Todo App</h1>
-          <TodoForm addTodo={this.addTodo} ref={this.inputRef} />
-          <TodoList
-            todoList={todoList}
-            filterType={filterType}
-            deleteTodo={this.deleteTodo}
-            toggleTodo={this.toggleTodo}
-          />
-          <TodoFilter
-            filterType={filterType}
-            changeFilter={this.changeFilter}
-          />
+      <div className="flex flex-col items-center gap-4 h-screen">
+        <h1>Todo App</h1>
+        <form
+          onSubmit={this.addTodo}
+          className="flex w-full max-w-sm items-center"
+        >
+          <Input ref={this.inputRef} className="rounded-r-none" required />
+          <Button type="submit" className="rounded-l-none">
+            Button
+          </Button>
+        </form>
+        <div className="flex flex-col gap-6 w-full p-6 flex-1">
+          {todoList.slice((page - 1) * 5, page * 5).map(x => {
+            if (
+              filterType === 'all' ||
+              (filterType === 'pending' && x.isDone === false) ||
+              (filterType === 'completed' && x.isDone === true)
+            ) {
+              return (
+                <div key={x.id} className="flex items-center">
+                  <Checkbox
+                    checked={x.isDone}
+                    onCheckedChange={() => this.toggleComplete(x)}
+                  />
+                  {editMode === x.id ? (
+                    <form
+                      onSubmit={() => this.editTodo(x)}
+                      className="flex flex-1 px-4"
+                    >
+                      <Input className="flex-1 px-4" ref={this.editRef} />
+                      <Button className="mx-" type="submit">
+                        Submit
+                      </Button>
+                    </form>
+                  ) : (
+                    <p
+                      className={`flex-1 px-4${x.isDone ? ' line-through' : ''}`}
+                    >
+                      {x.text}
+                    </p>
+                  )}
+
+                  <Button
+                    className="mx-4"
+                    type="button"
+                    onClick={() =>
+                      this.setState({ editMode: x.id }, () => {
+                        this.editRef.current.value = x.text;
+                      })
+                    }
+                  >
+                    Edit
+                  </Button>
+                  <ConfirmDelete onClick={() => this.deleteTodo(x)} />
+                </div>
+              );
+            }
+            return null;
+          })}
+
+          <Button
+            onClick={() =>
+              this.setState(({ page }) => {
+                return { page: page + 1 };
+              })
+            }
+            disabled={page >= Math.ceil(todoList.length / 5)}
+          >
+            next
+          </Button>
+
+          <Button
+            onClick={() =>
+              this.setState(({ page }) => {
+                return { page: page - 1 };
+              })
+            }
+            disabled={page <= 1}
+          >
+            Previous
+          </Button>
         </div>
-      </>
+        <div className="flex w-full">
+          <Button
+            className="flex-1 rounded-none"
+            variant={filterType === 'all' ? 'destructive' : 'default'}
+            onClick={() => this.changeFilterType('all')}
+          >
+            All
+          </Button>
+          <Button
+            className="flex-1 rounded-none"
+            variant={filterType === 'pending' ? 'destructive' : 'default'}
+            onClick={() => this.changeFilterType('pending')}
+          >
+            Pending
+          </Button>
+          <Button
+            className="flex-1 rounded-none"
+            variant={filterType === 'completed' ? 'destructive' : 'default'}
+            onClick={() => this.changeFilterType('completed')}
+          >
+            Completed
+          </Button>
+        </div>
+      </div>
     );
   }
 }
