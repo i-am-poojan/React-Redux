@@ -1,22 +1,22 @@
-import React, { memo } from 'react';
 import PropTypes from 'prop-types';
+import React, { memo } from 'react';
 import TodoListItem from '../todoListItem';
 
-function TodoList({ todoList, filterType, toggleComplete, deleteTodo }) {
-  console.log('render todolist');
+function TodoList({ todoList, filterType, toggleTodo, deleteTodo,  }) {
+  console.log('render todoList');
   return (
     <div className="flex flex-col gap-6 w-full p-6 flex-1">
-      {todoList.map(item => {
+      {todoList.map(x => {
         if (
           filterType === 'all' ||
-          (filterType === 'pending' && item.isDone === false) ||
-          (filterType === 'completed' && item.isDone === true)
+          (filterType === 'pending' && x.isDone === false) ||
+          (filterType === 'completed' && x.isDone === true)
         ) {
           return (
             <TodoListItem
-              key={item.id}
-              item={item}
-              toggleComplete={toggleComplete}
+              x={x}
+              key={x.id}
+              toggleTodo={toggleTodo}
               deleteTodo={deleteTodo}
             />
           );
@@ -36,7 +36,7 @@ TodoList.propTypes = {
     }).isRequired,
   ).isRequired,
   filterType: PropTypes.oneOf(['all', 'pending', 'completed']).isRequired,
-  toggleComplete: PropTypes.func.isRequired,
+  toggleTodo: PropTypes.func.isRequired,
   deleteTodo: PropTypes.func.isRequired,
 };
 

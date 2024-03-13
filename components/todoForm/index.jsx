@@ -1,22 +1,28 @@
-import React, { forwardRef, memo } from 'react';
 import PropTypes from 'prop-types';
-import { Input } from '../ui/input';
+import React, { forwardRef, memo } from 'react';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 function TodoForm({ addTodo }, ref) {
-  console.log('render todoform');
+  console.log('render addTodo');
   return (
-    <form onSubmit={addTodo} className="flex w-full max-w-sm items-center">
-      <Input ref={ref} className="rounded-r-none" required />
-      <Button type="submit" className="rounded-l-none">
-        Button
-      </Button>
-    </form>
+    <div>
+      <form onSubmit={addTodo} className="flex w-full max-w-sm items-center">
+        <Input
+          type="text"
+          className="rounded-r-none"
+          ref={ref}
+          // value={todoText}
+          // onChange={this.changeText}
+        />
+        <Button type="submit" className="rounded-l-none">
+          Button
+        </Button>
+      </form>
+    </div>
   );
 }
-
-TodoForm.propTypes = {
+TodoForm.PropTypes = {
   addTodo: PropTypes.func.isRequired,
 };
-
 export default memo(forwardRef(TodoForm));
