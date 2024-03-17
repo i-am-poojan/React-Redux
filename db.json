@@ -1,59 +1,44 @@
 {
   "todoList": [
     {
-      "id": "d08d",
-      "text": "i am fine",
+      "id": "b8ba",
+      "text": "Hi",
       "isDone": false
     },
     {
-      "id": "ed54",
-      "text": "workingdfd",
+      "id": "43b7",
+      "text": "How are you",
+      "isDone": false
+    },
+    {
+      "id": "9f44",
+      "text": "I am fine ",
       "isDone": true
     },
     {
-      "id": "f615",
-      "text": "dfgdf",
+      "id": "7b47",
+      "text": "what about you",
+      "isDone": true
+    },
+    {
+      "id": "8d69",
+      "text": "I am also fine bro !!!!!!!!!!",
+      "isDone": true
+    },
+    {
+      "id": "a7c2",
+      "text": "you are free ?",
       "isDone": false
     },
     {
-      "id": "1066",
-      "text": "dfdf",
+      "id": "6fdb",
+      "text": " no bro i am busy ",
       "isDone": false
     },
     {
-      "id": "46e1",
-      "text": "dfd",
-      "isDone": false
-    },
-    {
-      "id": "8a2c",
-      "text": "fd",
-      "isDone": false
-    },
-    {
-      "id": "2224",
-      "text": "df",
-      "isDone": false
-    },
-    {
-      "id": "2525",
-      "text": "f",
-      "isDone": false
-    },
-    {
-      "id": "0892",
-      "text": "fdgfgr",
-      "isDone": false
-    },
-    {
-      "id": "108d",
-      "text": "hi",
-      "isDone": false
-    },
-    {
-      "id": "d4c2",
-      "text": "iji",
-      "isDone": false
+      "id": "6d64",
+      "text": "Hey manibaa",
+      "isDone": true
     }
   ]
 }

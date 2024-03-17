@@ -1,36 +1,59 @@
 import React, { Component, createRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import ConfirmDelete from '@/components/confirmDelete';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
+const perPage = 5;
 export default class Home extends Component {
+  inputRef = createRef();
+  editRef = createRef();
   state = {
     todoList: [],
     filterType: 'all',
     editMode: 0,
     page: 1,
+    totalPages: 0,
+    error: null,
   };
-
-  inputRef = createRef();
-  editRef = createRef();
 
   async componentDidMount() {
-    this.loadTodo();
+    this.loadTodo(1);
   }
-
-  loadTodo = async () => {
+  loadTodo = async (currentPage, filterType = 'all') => {
     try {
-      const res = await fetch('http://localhost:3000/todoList');
+      let url = `http://localhost:3000/todoList?_page=${currentPage}&_per_page=${perPage}`;
+      if (filterType != 'all') {
+        url += `&isDone=${filterType === 'complated' ? 1 : 0}`;
+      }
+      const res = await fetch(url);
       const json = await res.json();
-      this.setState({ todoList: json });
-    } catch (error) {}
+      this.setState({
+        todoList: json.data,
+        totalPages: json.pages,
+        page: currentPage,
+        filterType,
+        error: null,
+      });
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
   };
 
-  addTodo = async e => {
+  addTodo = async event => {
     try {
-      e.preventDefault();
+      event.preventDefault();
       const input = this.inputRef.current;
 
       const res = await fetch('http://localhost:3000/todoList', {
@@ -38,44 +61,44 @@ export default class Home extends Component {
         body: JSON.stringify({
           text: input.value,
           isDone: false,
+          error: null,
         }),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-type': 'application/json',
           Accept: 'application/json',
         },
       });
-
       const json = await res.json();
 
       this.setState(
-        ({ todoList }) => ({
-          todoList: [...todoList, json],
-        }),
+        ({ todoList }) => {
+          return {
+            todoList: [...todoList, json],
+          };
+        },
         () => {
           input.value = '';
         },
       );
-    } catch (error) {}
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
   };
 
-  toggleComplete = async item => {
+  toggleTodo = async x => {
     try {
-      const res = await fetch(`http://localhost:3000/todoList/${item.id}`, {
+      const res = await fetch(`http://localhost:3000/todoList/${x.id}`, {
         method: 'PUT',
-        body: JSON.stringify({
-          ...item,
-          isDone: !item.isDone,
-        }),
+        body: JSON.stringify(x),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-type': 'application/json',
           Accept: 'application/json',
         },
       });
-
       const json = await res.json();
 
       this.setState(({ todoList }) => {
-        const index = todoList.findIndex(x => x.id === item.id);
+        const index = todoList.findIndex(item => item.id === x.id);
         return {
           todoList: [
             ...todoList.slice(0, index),
@@ -84,167 +107,162 @@ export default class Home extends Component {
           ],
         };
       });
-    } catch (error) {}
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
   };
 
-  editTodo = async item => {
+  deleteTodo = async x => {
     try {
-      const res = await fetch(`http://localhost:3000/todoList/${item.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          ...item,
-          text: this.editRef.current.value,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
-
-      const json = await res.json();
-
-      this.setState(({ todoList }) => {
-        const index = todoList.findIndex(x => x.id === item.id);
-        return {
-          todoList: [
-            ...todoList.slice(0, index),
-            json,
-            ...todoList.slice(index + 1),
-          ],
-          editMode: 0,
-        };
-      });
-    } catch (error) {}
-  };
-
-  deleteTodo = async item => {
-    try {
-      await fetch(`http://localhost:3000/todoList/${item.id}`, {
+      await fetch(`http://localhost:3000/todoList/${x.id}`, {
         method: 'DELETE',
       });
-
       this.setState(({ todoList }) => {
-        const index = todoList.findIndex(x => x.id === item.id);
+        const index = todoList.findIndex(item => item.id === x.id);
         return {
           todoList: [...todoList.slice(0, index), ...todoList.slice(index + 1)],
         };
       });
-    } catch (error) {}
+    } catch (error) {
+      this.setState({ error: error.message });
+    }
   };
 
-  changeFilterType = filterType => {
+  filterTodo = filterType => {
     this.setState({ filterType });
   };
 
   render() {
-    const { todoList, filterType, editMode, page } = this.state;
-
+    const { todoList, filterType, editMode, page, totalPages, error } =
+      this.state;
     return (
-      <div className="flex flex-col items-center gap-4 h-screen">
-        <h1>Todo App</h1>
-        <form
-          onSubmit={this.addTodo}
-          className="flex w-full max-w-sm items-center"
-        >
-          <Input ref={this.inputRef} className="rounded-r-none" required />
-          <Button type="submit" className="rounded-l-none">
-            Button
-          </Button>
+      <div className="flex flex-col items-center h-screen">
+        <h2>Todo App</h2>
+        <form className="flex" onSubmit={this.addTodo}>
+          <Input className="rounded-r-none" ref={this.inputRef} required />
+          <Button className="rounded-l-none">Add Todo</Button>
         </form>
-        <div className="flex flex-col gap-6 w-full p-6 flex-1">
-          {todoList.slice((page - 1) * 5, page * 5).map(x => {
+
+        <div className="flex-col items-center w-[90vw] gap-4 flex-1">
+          {todoList.map(x => {
             if (
               filterType === 'all' ||
               (filterType === 'pending' && x.isDone === false) ||
-              (filterType === 'completed' && x.isDone === true)
-            ) {
+              (filterType === 'complated' && x.isDone === true)
+            )
               return (
-                <div key={x.id} className="flex items-center">
+                <div className="flex items-center gap-4" key={x.id}>
                   <Checkbox
                     checked={x.isDone}
-                    onCheckedChange={() => this.toggleComplete(x)}
+                    onCheckedChange={() =>
+                      this.toggleTodo({ ...x, isDone: !x.isDone })
+                    }
                   />
                   {editMode === x.id ? (
                     <form
-                      onSubmit={() => this.editTodo(x)}
-                      className="flex flex-1 px-4"
+                      className="flex w-full"
+                      onSubmit={e => {
+                        e.preventDefault();
+                        this.toggleTodo({
+                          ...x,
+                          text: this.editRef.current.value,
+                          isDone: false,
+                        });
+                      }}
                     >
-                      <Input className="flex-1 px-4" ref={this.editRef} />
-                      <Button className="mx-" type="submit">
-                        Submit
-                      </Button>
+                      <Input
+                        className="flex-1 mr-1"
+                        ref={this.editRef}
+                        defaultValue={x.text}
+                      />
+                      <Button type="submit">Save</Button>
                     </form>
                   ) : (
-                    <p
-                      className={`flex-1 px-4${x.isDone ? ' line-through' : ''}`}
-                    >
+                    <p className={`flex-1 ${x.isDone ? 'line-through' : ''}`}>
                       {x.text}
                     </p>
                   )}
 
-                  <Button
-                    className="mx-4"
-                    type="button"
-                    onClick={() =>
-                      this.setState({ editMode: x.id }, () => {
-                        this.editRef.current.value = x.text;
-                      })
-                    }
-                  >
+                  <Button onClick={() => this.setState({ editMode: x.id })}>
                     Edit
                   </Button>
-                  <ConfirmDelete onClick={() => this.deleteTodo(x)} />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="default" className="m-1">
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your account and remove your data from our
+                          servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => this.deleteTodo(x)}>
+                          Continue
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               );
-            }
-            return null;
           })}
-
-          <Button
-            onClick={() =>
-              this.setState(({ page }) => {
-                return { page: page + 1 };
-              })
-            }
-            disabled={page >= Math.ceil(todoList.length / 5)}
-          >
-            next
-          </Button>
-
-          <Button
-            onClick={() =>
-              this.setState(({ page }) => {
-                return { page: page - 1 };
-              })
-            }
-            disabled={page <= 1}
-          >
-            Previous
-          </Button>
+          <div className="flex flex-col mx-auto gap-1 w-full">
+            <Button
+              type="button"
+              disabled={page >= totalPages}
+              onClick={() => this.loadTodo(page + 1)}
+            >
+              next
+            </Button>
+            <Button
+              disabled={page <= 1}
+              type="button"
+              onClick={() => this.loadTodo(page - 1)}
+            >
+              previous
+            </Button>
+          </div>
         </div>
+
         <div className="flex w-full">
           <Button
-            className="flex-1 rounded-none"
+            className="rounded-none flex-1"
+            type="button"
             variant={filterType === 'all' ? 'destructive' : 'default'}
-            onClick={() => this.changeFilterType('all')}
+            onClick={() => this.loadTodo(1, 'all')}
           >
             All
           </Button>
           <Button
-            className="flex-1 rounded-none"
+            className="rounded-none flex-1"
             variant={filterType === 'pending' ? 'destructive' : 'default'}
-            onClick={() => this.changeFilterType('pending')}
+            type="button"
+            onClick={() => this.loadTodo(1, 'pending')}
           >
             Pending
           </Button>
           <Button
-            className="flex-1 rounded-none"
-            variant={filterType === 'completed' ? 'destructive' : 'default'}
-            onClick={() => this.changeFilterType('completed')}
+            className="rounded-none flex-1"
+            variant={filterType === 'complated' ? 'destructive' : 'default'}
+            type="button"
+            onClick={() => this.loadTodo(1, 'complated')}
           >
-            Completed
+            Complated
           </Button>
         </div>
+        {error && (
+          <div className="absolute top-0 right-0 bg-red-600 rounded-3xl text-white p-2">
+            {error}
+          </div>
+        )}
       </div>
     );
   }
