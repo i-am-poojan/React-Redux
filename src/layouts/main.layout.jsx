@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-function DashboardLayout() {
+const MainLayout = () => {
   return <Outlet />;
-}
+};
 
-export default DashboardLayout;
+export default MainLayout;

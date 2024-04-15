@@ -1,33 +1,31 @@
 import React, { memo } from 'react';
-import { Checkbox } from '../ui/checkbox';
 import PropTypes from 'prop-types';
-import ConfirmDelete from '../confirmDelete';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import ConfirmDelete from '../confirmDelete';
 
-function TodoListItem({ x, deleteTodo, toggleTodo }) {
-  console.log('todo list item render');
+const TodoListItem = ({ x, toggleComplete, DeleteTodo }) => {
+  console.log('todoListitem');
   return (
     <div key={x.id} className="flex items-center">
-      <Checkbox
-        type="checkbox"
-        checked={x.isDone}
-        onCheckedChange={() => toggleTodo(x)}
-      />
-      <p className="flex-1 px-5">{x.text}</p>
-      <ConfirmDelete onClick={() => deleteTodo(x)} />
+      <Checkbox checked={x.isDone} onCheckedChange={() => toggleComplete(x)} />
+      <p className="flex-1 px-4">{x.text}</p>
+      {/* <Button type="button" onClick={() => DeleteTodo(x)}>
+        Delete
+      </Button> */}
+      <ConfirmDelete onClick={() => DeleteTodo(x)} />
     </div>
   );
-}
+};
 
-TodoListItem.propTypes = {
-  // Correct prop types declaration
+TodoListItem.PropTypes = {
   x: PropTypes.shape({
-    id: PropTypes.number,
-    text: PropTypes.string,
-    isDone: PropTypes.bool,
+    id: PropTypes.number.isRequired,
+    isDone: PropTypes.bool.isRequired,
+    text: PropTypes.string.isRequired,
   }).isRequired,
-  toggleTodo: PropTypes.func.isRequired,
-  deleteTodo: PropTypes.func.isRequired,
+  toggleComplete: PropTypes.func.isRequired,
+  DeleteTodo: PropTypes.func.isRequired,
 };
 
 export default memo(TodoListItem);

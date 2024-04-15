@@ -1,39 +1,38 @@
 import { Button } from '@/components/ui/button';
-import PropTypes from 'prop-types';
 import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
-function TodoFilter({ filterType, changeFilter }) {
-  console.log('todoFilter render');
+const TodoFilter = ({ filterType, changeFilterType }) => {
+  console.log('render todoFilter');
   return (
     <div className="flex w-full">
       <Button
+        onClick={() => changeFilterType('all')}
         className="flex-1 rounded-none"
         variant={filterType === 'all' ? 'destructive' : 'default'}
-        onClick={() => changeFilter('all')}
       >
         All
       </Button>
       <Button
-        className="flex-1 rounded-none"
+        onClick={() => changeFilterType('pending')}
         variant={filterType === 'pending' ? 'destructive' : 'default'}
-        onClick={() => changeFilter('pending')}
+        className="flex-1 rounded-none"
       >
         Pending
       </Button>
       <Button
-        className="flex-1 rounded-none"
+        onClick={() => changeFilterType('completed')}
         variant={filterType === 'completed' ? 'destructive' : 'default'}
-        onClick={() => changeFilter('completed')}
+        className="flex-1 rounded-none"
       >
         Completed
       </Button>
     </div>
   );
-}
-
-TodoFilter.propTypes = {
-  filterType: PropTypes.oneOf(['all', 'pending', 'completed']).isRequired,
-  changeFilter: PropTypes.func.isRequired,
 };
 
+TodoFilter.PropTypes = {
+  filterType: PropTypes.oneOf(['all', 'pending', 'complated']).isRequired,
+  changeFilterType: PropTypes.func.isRequired,
+};
 export default memo(TodoFilter);

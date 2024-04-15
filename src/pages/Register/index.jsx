@@ -1,7 +1,7 @@
 import React from 'react';
 import CustomForm from '../../reduxComponents/customForm';
 
-const About = () => {
+const Register = () => {
   return (
     <div>
       <CustomForm />
@@ -9,4 +9,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default Register;

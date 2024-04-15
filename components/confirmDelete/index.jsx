@@ -1,19 +1,20 @@
-import React,{memo} from 'react';
-import PropTypes from 'prop-types'
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-  } from '@/components/ui/alert-dialog';
-  import { Button } from '../ui/button';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '../ui/button';
 
-function ConfirmDelete({onClick}) {
+function ConfirmDelete({ onClick }) {
+  console.log('Confirm delete');
   return (
     <div>
       <AlertDialog>
@@ -30,9 +31,7 @@ function ConfirmDelete({onClick}) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onClick}>
-              Delete
-            </AlertDialogAction>
+            <AlertDialogAction onClick={onClick}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -40,8 +39,8 @@ function ConfirmDelete({onClick}) {
   );
 }
 
-ConfirmDelete.PropTypes={
-    onClick:PropTypes.func.isRequired,
-}
+ConfirmDelete.PropTypes = {
+  onClick: PropTypes.func.isRequired,
+};
 
 export default memo(ConfirmDelete);
